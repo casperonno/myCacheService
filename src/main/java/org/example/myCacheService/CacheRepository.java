@@ -27,7 +27,8 @@ public class CacheRepository<K,V> implements Map<K,V> {
     }
 
     private ArrayList<CacheElement>[] cache;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private ReadWriteLock[] chainingLocks;
+    private final ReadWriteLock resizingLock; //for resizing purpose
 
     private final double loadFactor;
     private int numOfElements = 0;
@@ -43,9 +44,18 @@ public class CacheRepository<K,V> implements Map<K,V> {
             throw new IllegalArgumentException("cache size must be above zero");
         }
         loadFactor = loadFact;
-
+        initChainingLocks(INITIAL_CACHE_SIZE);
+        resizingLock = new ReentrantReadWriteLock();
         cache = initArrayWithArrayList(INITIAL_CACHE_SIZE);
         cacheCapacity = INITIAL_CACHE_SIZE;
+    }
+
+    private void initChainingLocks(int cap) {
+
+        chainingLocks = new ReadWriteLock[cap];
+        for (int i=0; i<cap; i++){
+            chainingLocks[i] = new ReentrantReadWriteLock();
+        }
     }
 
     CacheRepository(){
@@ -62,13 +72,20 @@ public class CacheRepository<K,V> implements Map<K,V> {
             resize();
         }
         int index = calcIndexByKey(key);
-        //No need to check for cache[index]==null as I initialize in on the constructor and on every resizing
-        if (cache[index]==null) {
-            cache[index] = new ArrayList<>();
-        }
 
-        cache[index].add(new CacheElement(key,value));
-        numOfElements++;
+        resizingLock.readLock().lock();
+        chainingLocks[index].writeLock().lock();
+        try{
+            if (cache[index]==null) {
+                cache[index] = new ArrayList<>();
+            }
+
+            cache[index].add(new CacheElement(key,value));
+            numOfElements++;
+        } finally {
+            chainingLocks[index].writeLock().unlock();
+            resizingLock.readLock().unlock();
+        }
     }
 
     private int calcIndexByKey(K key) {
@@ -86,21 +103,39 @@ public class CacheRepository<K,V> implements Map<K,V> {
     @Override
     public V get(K key) {
         int idx = calcIndexByKey(key);
-        List<CacheElement> listForIndex = cache[idx];
-        if (listForIndex!=null){
-            for (CacheElement element: listForIndex) {
-                if (element.equals(key)) {
-                    return element.value;
+
+        resizingLock.readLock().lock();
+        chainingLocks[idx].readLock().lock();
+        try {
+            List<CacheElement> listForIndex = cache[idx];
+            if (listForIndex!=null){
+                for (CacheElement element: listForIndex) {
+                    if (element.equals(key)) {
+                        return element.value;
+                    }
                 }
             }
+            return  null;
+        } finally {
+            chainingLocks[idx].readLock().unlock();
+            resizingLock.readLock().unlock();
         }
-        return  null;
     }
 
 
     private void resize(){
-        int newCacheCapacity = cacheCapacity*2;
 
+        resizingLock.writeLock().lock();
+
+        try {
+            resizeCacheElements(cacheCapacity*2);
+            initChainingLocks(cacheCapacity*2);
+        } finally {
+            resizingLock.writeLock().unlock();
+        }
+    }
+
+    private void resizeCacheElements(int newCacheCapacity) {
         ArrayList<CacheElement>[] newArrayList = initArrayWithArrayList(newCacheCapacity);
         int idx;
         for (int i=0; i<cacheCapacity; i++){
