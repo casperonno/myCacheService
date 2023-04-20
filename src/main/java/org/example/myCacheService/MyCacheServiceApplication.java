@@ -3,16 +3,14 @@ package org.example.myCacheService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @SpringBootApplication
 public class MyCacheServiceApplication {
 
 	public static void main(String[] args) {
 		CacheRepository<String,Bond>  cacheRepo = initializeCacheWithLoadFactor();
-//		Bond b1 = new Bond("01A56DE6-7DB5-4179-B988-B57FE1889488","CBT", "US 5YR NOTE (CBT) Sep1", "FUTURE","FVU14 COMB","USD","US");
-//		Bond b2 = new Bond("01A56DE6-7DB5-4179-B988-B57FE1889499","2", "2", "2","2","2","2");
-//		cacheRepo.put(b1.getKey(),b1.getData());
-//		cacheRepo.put(b2.getKey(),b2.getData());
-//		Bond bond = cacheRepo.get(b2.getKey());
 
 		SpringApplication.run(MyCacheServiceApplication.class, args);
 	}

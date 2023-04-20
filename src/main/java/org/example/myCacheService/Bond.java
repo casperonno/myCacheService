@@ -1,16 +1,15 @@
 package org.example.myCacheService;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.lang.NonNull;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 public class Bond {
 
 
     @JsonIgnore
-    @NonNull
-    private String bondId;
+    private final String bondId;
     @JsonProperty("exchange")
     private String exchange;
     @JsonProperty("name")
@@ -35,7 +34,7 @@ public class Bond {
     }
 
     @JsonIgnore
-    public String getKey() {
+    public String getBondId() {
         return bondId;
     }
 }
