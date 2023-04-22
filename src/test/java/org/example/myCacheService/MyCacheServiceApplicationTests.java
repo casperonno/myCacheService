@@ -6,10 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,11 +48,10 @@ class MyCacheServiceApplicationTests {
 	}
 
 	@Test
-
 	void checkCacheWithMultiThreadsSuccess1() throws InterruptedException {
 		cacheRepo = MyCacheServiceApplication.initializeCacheWithLoadFactor();
 		AtomicBoolean hasFailed = new AtomicBoolean(false);
-		runLoadTest(2,cacheRepo, false, hasFailed);
+		runLoadTest(5,cacheRepo, false, hasFailed);
 		assertFalse(hasFailed.get());
 	}
 

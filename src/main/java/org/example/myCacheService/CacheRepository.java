@@ -73,7 +73,6 @@ public class CacheRepository<K,V> implements Map<K,V> {
         }
         int index = calcIndexByKey(key);
 
-        resizingLock.readLock().lock();
         chainingLocks[index].writeLock().lock();
         try{
             if (cache[index]==null) {
@@ -84,7 +83,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
             numOfElements++;
         } finally {
             chainingLocks[index].writeLock().unlock();
-            resizingLock.readLock().unlock();
+            resizingLock.writeLock().unlock();
         }
     }
 
