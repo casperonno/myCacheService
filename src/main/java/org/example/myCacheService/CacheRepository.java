@@ -27,8 +27,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
     }
 
     private ArrayList<CacheElement>[] cache;
-    private ReadWriteLock[] chainingLocks;
-    private final ReadWriteLock resizingLock; //for resizing purpose
+    private final ReadWriteLock readWriteLock; //for resizing purpose
 
     private final double loadFactor;
     private int numOfElements = 0;
@@ -44,18 +43,9 @@ public class CacheRepository<K,V> implements Map<K,V> {
             throw new IllegalArgumentException("cache size must be above zero");
         }
         loadFactor = loadFact;
-        initChainingLocks(INITIAL_CACHE_SIZE);
-        resizingLock = new ReentrantReadWriteLock();
+        readWriteLock = new ReentrantReadWriteLock();
         cache = initArrayWithArrayList(INITIAL_CACHE_SIZE);
         cacheCapacity = INITIAL_CACHE_SIZE;
-    }
-
-    private void initChainingLocks(int cap) {
-
-        chainingLocks = new ReadWriteLock[cap];
-        for (int i=0; i<cap; i++){
-            chainingLocks[i] = new ReentrantReadWriteLock();
-        }
     }
 
     CacheRepository(){
@@ -68,12 +58,12 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @Override
     public void put(K key, V value) {
+        readWriteLock.writeLock().lock();
         if (isAboveLoadThreshold()){
             resize();
         }
         int index = calcIndexByKey(key);
 
-        chainingLocks[index].writeLock().lock();
         try{
             if (cache[index]==null) {
                 cache[index] = new ArrayList<>();
@@ -82,8 +72,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
             cache[index].add(new CacheElement(key,value));
             numOfElements++;
         } finally {
-            chainingLocks[index].writeLock().unlock();
-            resizingLock.writeLock().unlock();
+            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -101,11 +90,9 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @Override
     public V get(K key) {
-        int idx = calcIndexByKey(key);
-
-        resizingLock.readLock().lock();
-        chainingLocks[idx].readLock().lock();
         try {
+            readWriteLock.readLock().lock();
+            int idx = calcIndexByKey(key);
             List<CacheElement> listForIndex = cache[idx];
             if (listForIndex!=null){
                 for (CacheElement element: listForIndex) {
@@ -116,22 +103,13 @@ public class CacheRepository<K,V> implements Map<K,V> {
             }
             return  null;
         } finally {
-            chainingLocks[idx].readLock().unlock();
-            resizingLock.readLock().unlock();
+            readWriteLock.readLock().unlock();
         }
     }
 
 
     private void resize(){
-
-        resizingLock.writeLock().lock();
-
-        try {
-            resizeCacheElements(cacheCapacity*2);
-            initChainingLocks(cacheCapacity*2);
-        } finally {
-            resizingLock.writeLock().unlock();
-        }
+        resizeCacheElements(cacheCapacity*2);
     }
 
     private void resizeCacheElements(int newCacheCapacity) {
