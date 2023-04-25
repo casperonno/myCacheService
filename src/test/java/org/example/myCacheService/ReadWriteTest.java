@@ -1,4 +1,7 @@
 package org.example.myCacheService;
+import org.example.myCacheService.cacheRepo.CacheRepository;
+import org.example.myCacheService.service.Bond;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import static  org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -7,7 +10,7 @@ import static  org.junit.jupiter.api.Assertions.assertEquals;
 public class ReadWriteTest implements Runnable{
 
     private final boolean failedTest;
-    CacheRepository<String,Bond>  cacheRepo;
+    CacheRepository<String, Bond> cacheRepo;
     AtomicBoolean hasFailed;
     Bond[] bondsData = new Bond[MAX_OPERATIONS_PER_THREAD];
     static final Integer MAX_OPERATIONS_PER_THREAD = 10;

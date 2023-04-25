@@ -1,4 +1,4 @@
-package org.example.myCacheService;
+package org.example.myCacheService.cacheRepo;
 
 import org.springframework.stereotype.Repository;
 
@@ -57,7 +57,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
         cacheCapacity = INITIAL_CACHE_SIZE;
     }
 
-    CacheRepository(){
+    public CacheRepository(){
         this(DEFAULT_LOAD_FACTOR);
     }
 

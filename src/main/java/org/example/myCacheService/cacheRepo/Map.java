@@ -1,4 +1,4 @@
-package org.example.myCacheService;
+package org.example.myCacheService.cacheRepo;
 
 import org.springframework.stereotype.Repository;
 

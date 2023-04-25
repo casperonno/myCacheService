@@ -1,5 +1,7 @@
-package org.example.myCacheService;
+package org.example.myCacheService.controller;
 
+import org.example.myCacheService.cacheRepo.CacheRepository;
+import org.example.myCacheService.service.Bond;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class CacheController {
     @Autowired
-    private CacheRepository<String,Bond> cacheRepository;
+    private CacheRepository<String, Bond> cacheRepository;
 
     @PostMapping
     public ResponseEntity<Void> saveBond(@RequestBody Bond bond){

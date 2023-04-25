@@ -1,7 +1,6 @@
-package org.example.myCacheService;
+package org.example.myCacheService.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.web.bind.annotation.RestController;
 
 public class GetResponse<T> {
     @JsonProperty("status")

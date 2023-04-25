@@ -1,4 +1,4 @@
-package org.example.myCacheService;
+package org.example.myCacheService.service;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;

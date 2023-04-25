@@ -1,12 +1,11 @@
 package org.example.myCacheService;
 
+import org.example.myCacheService.cacheRepo.CacheRepository;
+import org.example.myCacheService.service.Bond;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class MyCacheServiceApplicationTests {
-	CacheRepository<String,Bond>  cacheRepo;
+	CacheRepository<String, Bond> cacheRepo;
 	private static void runLoadTest(int numOfThreads,CacheRepository<String,Bond>  cacheRepo, boolean failedTest, AtomicBoolean hasFailed) throws InterruptedException {
 		ExecutorService executor = Executors.newFixedThreadPool(numOfThreads);
 

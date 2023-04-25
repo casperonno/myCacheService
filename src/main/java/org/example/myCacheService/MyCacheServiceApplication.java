@@ -1,16 +1,15 @@
 package org.example.myCacheService;
 
+import org.example.myCacheService.cacheRepo.CacheRepository;
+import org.example.myCacheService.service.Bond;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class MyCacheServiceApplication {
 
 	public static void main(String[] args) {
-		CacheRepository<String,Bond>  cacheRepo = initializeCacheWithLoadFactor();
+		CacheRepository<String, Bond> cacheRepo = initializeCacheWithLoadFactor();
 
 		SpringApplication.run(MyCacheServiceApplication.class, args);
 	}
