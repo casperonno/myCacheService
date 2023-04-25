@@ -20,6 +20,14 @@ public class CacheRepository<K,V> implements Map<K,V> {
             value = v;
         }
 
+        public K getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return value;
+        }
+
         @Override
         public boolean equals(Object k){
             return k.equals(key);
@@ -38,7 +46,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
     private static final int INITIAL_CACHE_SIZE = 1; //TODO change it back
 
     
-    CacheRepository(double loadFact){
+    public CacheRepository(double loadFact){
         if (!isFactorInRange(loadFact)) {
             throw new IllegalArgumentException("cache size must be above zero");
         }
@@ -71,8 +79,17 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
             cache[index].add(new CacheElement(key,value));
             numOfElements++;
+        }
+        catch (Exception e){
+            System.err.println("failed to put element in cache");
+            e.printStackTrace();
         } finally {
-            readWriteLock.writeLock().unlock();
+            try{
+                readWriteLock.writeLock().unlock();
+            } catch (Exception e){
+                System.err.println("failed to unlock acquired locks");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -92,7 +109,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
     public V get(K key) {
         try {
             readWriteLock.readLock().lock();
-            int idx = calcIndexByKey(key);
+            var idx = calcIndexByKey(key);
             List<CacheElement> listForIndex = cache[idx];
             if (listForIndex!=null){
                 for (CacheElement element: listForIndex) {
@@ -113,12 +130,11 @@ public class CacheRepository<K,V> implements Map<K,V> {
     }
 
     private void resizeCacheElements(int newCacheCapacity) {
-        ArrayList<CacheElement>[] newArrayList = initArrayWithArrayList(newCacheCapacity);
-        int idx;
+        var newArrayList = initArrayWithArrayList(newCacheCapacity);
         for (int i=0; i<cacheCapacity; i++){
             ArrayList<CacheElement> listOfIndex = cache[i];
             for (CacheElement element: listOfIndex) {
-                idx = calcIndexByKey(element.key,newCacheCapacity);
+                var idx = calcIndexByKey(element.key,newCacheCapacity);
                 newArrayList[idx].add(element);
             }
         }
@@ -128,7 +144,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @SuppressWarnings("unchecked")
     private  ArrayList<CacheElement>[] initArrayWithArrayList(int newCacheCapacity) {
-        ArrayList<CacheElement>[] newArrayList = (ArrayList<CacheElement>[]) new ArrayList[newCacheCapacity];
+        var newArrayList = (ArrayList<CacheElement>[]) new ArrayList[newCacheCapacity];
         for (int i=0; i<newCacheCapacity; i++){
             newArrayList[i] = new ArrayList<>();
         }

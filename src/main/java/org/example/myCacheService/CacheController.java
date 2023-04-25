@@ -16,7 +16,7 @@ public class CacheController {
 
     @PostMapping
     public ResponseEntity<Void> saveBond(@RequestBody Bond bond){
-        String key = bond.getBondId();
+        var key = bond.getBondId();
         if (key==null){
             return ResponseEntity.badRequest().build();
         }
@@ -30,7 +30,7 @@ public class CacheController {
         if (bond_id.isEmpty()){
             return ResponseEntity.badRequest().build();
         }
-        Bond bond = cacheRepository.get(bond_id);
+        var bond = cacheRepository.get(bond_id);
         if (bond!=null){
             return  ResponseEntity.ok().body(GetResponse.success(bond));
         }
