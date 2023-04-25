@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 @Repository
 public class CacheRepository<K,V> implements Map<K,V> {
@@ -107,18 +108,15 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @Override
     public V get(K key) {
+        V element = null;
         try {
             readWriteLock.readLock().lock();
             var idx = calcIndexByKey(key);
             List<CacheElement> listForIndex = cache[idx];
             if (listForIndex!=null){
-                for (CacheElement element: listForIndex) {
-                    if (element.equals(key)) {
-                        return element.value;
-                    }
-                }
+                element = listForIndex.stream().filter(e -> e.equals(key)).findFirst().map(CacheElement::getValue).orElse(null);
             }
-            return  null;
+            return  element;
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -144,10 +142,8 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @SuppressWarnings("unchecked")
     private  ArrayList<CacheElement>[] initArrayWithArrayList(int newCacheCapacity) {
-        var newArrayList = (ArrayList<CacheElement>[]) new ArrayList[newCacheCapacity];
-        for (int i=0; i<newCacheCapacity; i++){
-            newArrayList[i] = new ArrayList<>();
-        }
-        return newArrayList;
+        return Stream.generate(ArrayList<CacheElement>::new)
+                .limit(newCacheCapacity)
+                .toArray(ArrayList[]::new);
     }
 }
