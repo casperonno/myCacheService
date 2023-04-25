@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,11 +21,8 @@ class MyCacheServiceApplicationTests {
 		List<ReadWriteTest> readWriteTestThreads = new ArrayList<>();
 
 
-		for (int i=0; i<numOfThreads; i++){
-			ReadWriteTest readWriteTestThread = new ReadWriteTest(cacheRepo,hasFailed,failedTest);
-			readWriteTestThreads.add(readWriteTestThread);
-			executor.submit(readWriteTestThread);
-		}
+		IntStream.range(0,numOfThreads)
+				.forEach(id -> executor.execute( ()->new ReadWriteTest(cacheRepo,hasFailed,failedTest).run()));
 		executor.shutdown();
 		while (!executor.isTerminated()){
 			Thread.sleep(200);

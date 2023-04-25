@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 @Repository
 public class CacheRepository<K,V> implements Map<K,V> {
@@ -22,7 +23,10 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
         @Override
         public boolean equals(Object k){
-            return k.equals(key);
+            if (k!=null && (k.getClass().equals(this.key.getClass()))) {
+                return k.equals(key);
+            }
+            return false;
         }
     }
 
@@ -83,7 +87,6 @@ public class CacheRepository<K,V> implements Map<K,V> {
             numOfElements++;
         } finally {
             chainingLocks[index].writeLock().unlock();
-            resizingLock.writeLock().unlock();
         }
     }
 
@@ -101,7 +104,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @Override
     public V get(K key) {
-        int idx = calcIndexByKey(key);
+        var idx = calcIndexByKey(key);
 
         resizingLock.readLock().lock();
         chainingLocks[idx].readLock().lock();
@@ -135,10 +138,10 @@ public class CacheRepository<K,V> implements Map<K,V> {
     }
 
     private void resizeCacheElements(int newCacheCapacity) {
-        ArrayList<CacheElement>[] newArrayList = initArrayWithArrayList(newCacheCapacity);
+        var newArrayList = initArrayWithArrayList(newCacheCapacity);
         int idx;
         for (int i=0; i<cacheCapacity; i++){
-            ArrayList<CacheElement> listOfIndex = cache[i];
+            var listOfIndex = cache[i];
             for (CacheElement element: listOfIndex) {
                 idx = calcIndexByKey(element.key,newCacheCapacity);
                 newArrayList[idx].add(element);
@@ -150,10 +153,8 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
     @SuppressWarnings("unchecked")
     private  ArrayList<CacheElement>[] initArrayWithArrayList(int newCacheCapacity) {
-        ArrayList<CacheElement>[] newArrayList = (ArrayList<CacheElement>[]) new ArrayList[newCacheCapacity];
-        for (int i=0; i<newCacheCapacity; i++){
-            newArrayList[i] = new ArrayList<>();
-        }
-        return newArrayList;
+        return Stream.generate(ArrayList<CacheElement>::new)
+                .limit(newCacheCapacity)
+                .toArray(ArrayList[]::new);
     }
 }
