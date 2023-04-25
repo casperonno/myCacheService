@@ -44,7 +44,7 @@ public class CacheRepository<K,V> implements Map<K,V> {
     private static final double MAX_LOAD_FACTOR = 1;
     private static final double MIN_LOAD_FACTOR = 0.01;
     public static final double DEFAULT_LOAD_FACTOR = 0.75;
-    private static final int INITIAL_CACHE_SIZE = 1; //TODO change it back
+    private static final int INITIAL_CACHE_SIZE = 5;
 
     
     public CacheRepository(double loadFact){
