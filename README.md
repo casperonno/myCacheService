@@ -9,9 +9,10 @@ My implementation for a synchronized hash map in Java
 ## Installation
 
 1. Clone the repository: `git clone https://github.com/casperonno/myCacheService.git`
-2. Check out the desired branch: `git checkout lock_on_the_whole_list`
-3. Build the project: `mvn clean install`
-4. Run the project: `java -jar target/myCacheService.jar`
+2. Enter the new folder `cd myCacheService`
+3. Check out the desired branch: `git checkout lock_on_the_whole_list`
+4. Build the project: `mvn clean install`
+5. Run the project: `java -jar target/myCacheService.jar`
 
 
 ## Supported features:
