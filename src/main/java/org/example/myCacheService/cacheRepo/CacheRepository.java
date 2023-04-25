@@ -31,7 +31,10 @@ public class CacheRepository<K,V> implements Map<K,V> {
 
         @Override
         public boolean equals(Object k){
-            return k.equals(key);
+            if (k!=null && (k.getClass().equals(this.key.getClass()))) {
+                return k.equals(key);
+            }
+            return false;
         }
     }
 

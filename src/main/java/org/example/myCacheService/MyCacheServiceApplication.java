@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MyCacheServiceApplication {
 
 	public static void main(String[] args) {
-		CacheRepository<String, Bond> cacheRepo = initializeCacheWithLoadFactor();
-
 		SpringApplication.run(MyCacheServiceApplication.class, args);
 	}
 
