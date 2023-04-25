@@ -3,7 +3,7 @@
 My implementation for a synchronized hash map in Java
 
 ## Instructions
-  1. Please use the lock_on_the_whole_list branch.
+  1. Please use the `lock_on_the_whole_list` branch.
   2. The main branch is an attempt to give a milder condition for the read/write synchronization on the chaining list level. This version sometimes fails on heacy load tests.
   
 ## Installation
